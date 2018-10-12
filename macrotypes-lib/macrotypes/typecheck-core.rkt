@@ -278,6 +278,7 @@
 ;; and a `kind` pat var for its "type".
 ;; But `name` could correspond to any kind of metadata,
 ;; e.g., kinds, src locs, polymorphic bounds
+;; TODO: this macro results in absurd macro expansion times. Any way to fix that?
 (define-syntax (define-syntax-category stx)
   (syntax-parse stx
     [(_ name:id)        ; default key1 = ': for types
@@ -355,6 +356,7 @@
                                           (not (exn:fail:syntax:unbound? e))))
                               ;; return exn-msg
                               (λ (e) (exn-message e))])
+                            ;; TODO: Should preserve srcloc?
                             (checked-type-eval #'τ))
               #:fail-unless (and (not (string? (stx-e #'norm)))
                                  ((current-type?) #'norm))
@@ -998,6 +1000,8 @@
   (define (detach/check e+ tag #:orig [e #f])
     (define ty (detach e+ tag))
     (unless ty
+      ;; TODO: Is it okay for this to be specialized to only these 3 tags? Can't
+      ;; we create new tags by defining new syntax categories?
       (raise-syntax-error #f
        (case tag
          [(:) "expected a typed term"]
@@ -1331,7 +1335,7 @@
                         fail-msg)
                  stx))])))
 
-  ;; todo: abstract out the common shape of a type constructor,
+  ;; TODO: abstract out the common shape of a type constructor,
   ;; i.e., the repeated pattern code in the functions below
   (define (get-extra-info t)
     (syntax-parse t
@@ -1344,6 +1348,7 @@
 
   ;; --------------------------------------------------------------------------
   ;; substitution function
+  ;; TODO: specialized to only one syntactic category
   (define (merge-type-tags stx) ;; TODO: merge other tags?
     (define t (syntax-property stx ':))
     (or (and (pair? t)
