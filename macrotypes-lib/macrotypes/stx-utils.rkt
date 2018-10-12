@@ -4,6 +4,8 @@
          racket/syntax)
 (provide (all-defined-out))
 
+;; TODO: Could move some of this to syntax/stx?
+
 ;; shorthands
 (define id? identifier?)
 (define free-id=? free-identifier=?)
