@@ -29,10 +29,18 @@
                 "stx-utils.rkt"))
  (rename-out [define-syntax-category define-stx-category]))
 
+(require (for-syntax syntax/srcloc))
 (define-syntax (erased stx)
   (syntax-parse stx
     [(_ e)
-     #'e]))
+     ; NB: This is a serious fucking bug in Racket
+     (printf "Prerase ~a~n" (source-location->string this-syntax))
+     #;(printf "Postrase ~a~n" (source-location->string #'e))
+     ;; These three should be equivalent, but they are not.
+     #;(printf "Postrase2 ~a~n" (source-location->string (quasisyntax/loc this-syntax e)))
+     #;(printf "Postrase3 ~a~n" (source-location->string (syntax/loc this-syntax e)))
+     (printf "Postrase4 ~a~n" (source-location->string (replace-stx-loc #'e stx)))
+     (replace-stx-loc #'e this-syntax)]))
 
 ;; type checking functions/forms
 
